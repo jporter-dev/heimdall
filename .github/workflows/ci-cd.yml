@@ -151,14 +151,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
       - name: 📦 Install semantic-release
         run: |
-          npm install -g semantic-release
-          npm install -g @semantic-release/changelog
-          npm install -g @semantic-release/git
-          npm install -g @semantic-release/github
+          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
 
       - name: 🚀 Run semantic-release
         id: semantic-release
