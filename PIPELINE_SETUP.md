@@ -4,18 +4,22 @@ This document provides instructions for setting up and configuring the GitHub Ac
 
 ## Pipeline Overview
 
-The CI/CD pipeline consists of four main jobs that run in parallel for quality checks, followed by build/release jobs that run only on the main branch:
+The unified CI/CD pipeline (`.github/workflows/ci-cd.yml`) uses intelligent conditional logic to run different jobs based on the trigger event:
 
-### Quality Assurance Jobs (Parallel)
+### Core Quality Jobs (All Pushes & PRs)
 
-1. **Code Linting** - Uses RuboCop with Rails Omakase styling
-2. **Security Scanning** - Uses Brakeman for vulnerability detection
-3. **Code Quality Analysis** - Uses SonarCloud for comprehensive code analysis
+1. **🔍 Code Linting** - Uses RuboCop with Rails Omakase styling
+2. **🧪 Run Tests** - Full test suite with PostgreSQL database
+3. **🛡️ Security Scan** - Uses Brakeman for vulnerability detection
 
-### Deployment Jobs (Sequential, Release Branches Only)
+### Additional Quality Jobs (Pull Requests Only)
 
-4. **Semantic Release** - Automatically versions and releases based on conventional commits
-5. **Build and Push Container Image** - Builds Docker image and pushes to GHCR (only when a release is created)
+4. **📊 Code Quality Analysis** - Uses SonarCloud for comprehensive code analysis
+
+### Release Jobs (Main/Beta/Alpha Branches Only)
+
+5. **🚀 Semantic Release** - Automatically versions and releases based on conventional commits
+6. **🐳 Build and Push Container Image** - Builds Docker image and pushes to GHCR (only when a release is created)
 
 ## Required Setup
 
