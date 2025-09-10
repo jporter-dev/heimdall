@@ -165,23 +165,45 @@ jobs:
       - name: 🚀 Run semantic-release
         id: semantic-release
         run: |
-          # Run semantic-release and capture output
-          npx semantic-release > semantic-release.log 2>&1 || true
+          # Store the current latest tag before running semantic-release
+          BEFORE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
-          # Check if a release was published by looking for the success message
-          if grep -q "Published release" semantic-release.log || grep -q "Release note" semantic-release.log; then
-            echo "new-release-published=true" >> $GITHUB_OUTPUT
-            # Extract version from git tags (latest tag should be the new release)
-            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            if [ -n "$VERSION" ]; then
-              echo "new-release-version=${VERSION#v}" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "new-release-published=false" >> $GITHUB_OUTPUT
-          fi
+          # Run semantic-release and capture output
+          SEMANTIC_EXIT_CODE=0
+          npx semantic-release > semantic-release.log 2>&1 || SEMANTIC_EXIT_CODE=$?
 
           # Display the log for debugging
+          echo "=== Semantic Release Log ==="
           cat semantic-release.log
+          echo "=== End Log ==="
+
+          # Check the current latest tag after running semantic-release
+          AFTER_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          # If a new tag was created, we have a new release
+          if [ "$BEFORE_TAG" != "$AFTER_TAG" ] && [ -n "$AFTER_TAG" ]; then
+            echo "new-release-published=true" >> $GITHUB_OUTPUT
+            echo "new-release-version=${AFTER_TAG#v}" >> $GITHUB_OUTPUT
+            echo "New release detected: $AFTER_TAG"
+          else
+            # Also check for success messages in the log as backup
+            if grep -q "Published release" semantic-release.log || grep -q "Release note" semantic-release.log; then
+              echo "new-release-published=true" >> $GITHUB_OUTPUT
+              if [ -n "$AFTER_TAG" ]; then
+                echo "new-release-version=${AFTER_TAG#v}" >> $GITHUB_OUTPUT
+              fi
+              echo "Release detected from log messages"
+            else
+              echo "new-release-published=false" >> $GITHUB_OUTPUT
+              echo "No new release published"
+            fi
+          fi
+
+          # Don't fail the job if semantic-release exits with code 0 or if no release is needed
+          if [ $SEMANTIC_EXIT_CODE -ne 0 ] && ! grep -q "no release" semantic-release.log; then
+            echo "Semantic-release failed with exit code $SEMANTIC_EXIT_CODE"
+            exit $SEMANTIC_EXIT_CODE
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -197,6 +219,11 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v5
 
+      - name: 🔍 Debug release outputs
+        run: |
+          echo "Release published: ${{ needs.release.outputs.new-release-published }}"
+          echo "Release version: ${{ needs.release.outputs.new-release-version }}"
+
       - name: 🔐 Log in to Container Registry
         uses: docker/login-action@v3
         with:
@@ -210,7 +237,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ needs.release.outputs.new-release-version }}
+            type=raw,value=${{ needs.release.outputs.new-release-version || 'latest' }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: 🔧 Set up Docker Buildx
