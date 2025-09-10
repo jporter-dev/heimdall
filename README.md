@@ -58,7 +58,7 @@ rails db:migrate
 rails server
 ```
 
-The API will be available at `http://localhost:3000`
+The API will be available at `http://localhost:3000`. View the Swagger docs at `http://localhost:3000/docs`.
 
 ## API Endpoints
 
@@ -170,21 +170,6 @@ default: &default
 3. **Information Extraction**: System prompt extraction attempts
 4. **Harmful Content**: Violence, illegal activities
 5. **Bypass Attempts**: Encoding, jailbreak patterns
-
-## Security Features
-
-### Pattern Matching
-
-- Case-insensitive regex matching
-- Multiple pattern support with severity levels
-- Safe regex compilation with error handling
-
-### API Security
-
-- Input validation and sanitization
-- Rate limiting ready (middleware not included)
-- CORS configuration
-- Error handling without information disclosure
 
 ## Deployment
 
