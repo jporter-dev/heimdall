@@ -7,7 +7,6 @@ A Ruby on Rails API application that serves as a security firewall for Large Lan
 - **Regex-based Filtering**: Configurable YAML-based regex patterns for prompt validation
 - **Multiple Actions**: Block, warn, or log suspicious prompts
 - **Batch Processing**: Validate multiple prompts in a single API call
-- **12-Factor App Compliant**: Environment-based configuration, stateless design
 - **Comprehensive Logging**: Detailed logging with configurable levels
 - **Health Monitoring**: Built-in health check endpoints
 - **CORS Support**: Configurable cross-origin resource sharing
@@ -18,7 +17,6 @@ A Ruby on Rails API application that serves as a security firewall for Large Lan
 ### Prerequisites
 
 - Ruby 3.3.6 or higher
-- PostgreSQL 12 or higher
 - Rails 8.0 or higher
 
 ### Installation
@@ -26,8 +24,8 @@ A Ruby on Rails API application that serves as a security firewall for Large Lan
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
-cd llm-fw
+git clone https://github.com/jporter-dev/heimdall
+cd heimdall
 ```
 
 2. Install dependencies:
@@ -45,12 +43,14 @@ cp .env.example .env
 
 4. Set up the database:
 
+> Note: this can be skipped since the app is currently stateless and does not require a database.
+
 ```bash
 rails db:create
 rails db:migrate
 ```
 
-5. Start the server:
+1. Start the server:
 
 ```bash
 rails server
@@ -177,17 +177,10 @@ default: &default
 - Multiple pattern support with severity levels
 - Safe regex compilation with error handling
 
-### Logging
-
-- Structured JSON logging
-- Configurable log levels
-- No sensitive data in logs (prompt content limited)
-- Timestamp and pattern matching details
-
 ### API Security
 
 - Input validation and sanitization
-- Rate limiting ready (add middleware)
+- Rate limiting ready (middleware not included)
 - CORS configuration
 - Error handling without information disclosure
 
@@ -228,15 +221,6 @@ DATABASE_URL=postgresql://user:pass@host:5432/llm_fw_production
 
 - `/up` - Rails health check
 - `/api/v1/prompts/health` - Application-specific health
-
-### Logging
-
-Structured logs include:
-
-- Request/response details
-- Pattern matches
-- Performance metrics
-- Error tracking
 
 ### Metrics
 
@@ -279,30 +263,6 @@ def custom_action(prompt, matched_patterns)
 end
 ```
 
-## Architecture
-
-### 12-Factor App Compliance
-
-1. **Codebase**: Single codebase, multiple deploys
-2. **Dependencies**: Explicit via Gemfile
-3. **Config**: Environment variables
-4. **Backing Services**: PostgreSQL as attached resource
-5. **Build/Release/Run**: Separate stages
-6. **Processes**: Stateless, share-nothing
-7. **Port Binding**: Self-contained web service
-8. **Concurrency**: Process model via Puma
-9. **Disposability**: Fast startup/shutdown
-10. **Dev/Prod Parity**: Consistent environments
-11. **Logs**: Treat as event streams
-12. **Admin Processes**: One-off tasks via Rails console
-
-### Components
-
-- **PromptFirewallService**: Core filtering logic
-- **PromptsController**: API endpoints
-- **Configuration**: YAML-based with environment overrides
-- **Logging**: Structured logging with multiple levels
-
 ## Contributing
 
 1. Fork the repository
@@ -313,7 +273,7 @@ end
 
 ## License
 
-[Add your license here]
+TODO: Add license here
 
 ## Support
 
