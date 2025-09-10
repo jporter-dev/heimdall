@@ -1,4 +1,4 @@
-# LLM Prompt Firewall
+# Heimdall
 
 [![HeimdallLogo](heimdall.png)](https://github.com/jporter-dev/heimdall)
 
