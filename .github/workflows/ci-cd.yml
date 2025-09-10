@@ -54,12 +54,6 @@ jobs:
           ruby-version-file: .ruby-version
           bundler-cache: true
 
-      - name: 🗄️ Prepare test database
-        run: bundle exec rails db:test:prepare
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-
       - name: 🧪 Run tests
         run: bundle exec rails test
         env:
