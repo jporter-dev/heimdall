@@ -24,7 +24,7 @@ module Scanners
             description: pattern_config["description"],
             metadata: {
               pattern: pattern_config["pattern"],
-              scanner_type: "regex",
+              scanner_type: "regex"
             },
           )
           matches << match

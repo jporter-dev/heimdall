@@ -17,7 +17,7 @@ module Scanners
       ".-.-.-" => ".", "..--.." => "?", "-.-.--" => "!", "-....-" => "-",
       "-..-." => "/", ".--.-." => "@", "---..." => ":", "-.-.." => ";",
       "-...-" => "=", ".-.-." => "+", "-.--." => "(", "-.--.-" => ")",
-      ".-..-." => "\"", "...-..-" => "$", "..--.-" => "_",
+      ".-..-." => "\"", "...-..-" => "$", "..--.-" => "_"
     }.freeze
 
     # Suspicious patterns to look for in decoded morse code
@@ -26,32 +26,32 @@ module Scanners
         name: "Morse Code Injection Attempt",
         pattern: /(?i)(ignore\s+(all\s+)?(previous|above)\s+(instructions|prompts|rules)|forget\s+(everything|all|previous))/,
         action: "block",
-        description: "Detected instruction override attempt hidden in morse code",
+        description: "Detected instruction override attempt hidden in morse code"
       },
       {
         name: "Morse Code Role Override",
         pattern: /(?i)(you\s+are\s+now|act\s+as\s+if|pretend\s+to\s+be|roleplay\s+as)/,
         action: "warn",
-        description: "Detected role override attempt hidden in morse code",
+        description: "Detected role override attempt hidden in morse code"
       },
       {
         name: "Morse Code System Prompt Extraction",
         pattern: /(?i)(show\s+me\s+your|what\s+is\s+your|reveal\s+your)\s+(system\s+prompt|instructions|rules)/,
         action: "block",
-        description: "Detected system prompt extraction attempt hidden in morse code",
+        description: "Detected system prompt extraction attempt hidden in morse code"
       },
       {
         name: "Morse Code Jailbreak Attempt",
         pattern: /(?i)(jailbreak|dan\s+mode|developer\s+mode|god\s+mode|admin\s+mode)/,
         action: "block",
-        description: "Detected jailbreak attempt hidden in morse code",
+        description: "Detected jailbreak attempt hidden in morse code"
       },
       {
         name: "Morse Code Harmful Content",
         pattern: /(?i)(how\s+to\s+(kill|murder|harm|hurt)|instructions\s+for\s+(violence|weapons))/,
         action: "block",
-        description: "Detected harmful content request hidden in morse code",
-      },
+        description: "Detected harmful content request hidden in morse code"
+      }
     ].freeze
 
     def initialize(config = {})
@@ -82,7 +82,7 @@ module Scanners
                 morse_sequence: morse_data[:sequence],
                 decoded_text: decoded_text,
                 original_position: morse_data[:position],
-                scanner_type: "morse_code",
+                scanner_type: "morse_code"
               },
             )
             matches << match
@@ -116,7 +116,7 @@ module Scanners
         if cleaned.match?(/[.\-]/) && looks_like_morse?(cleaned)
           sequences << {
             sequence: cleaned,
-            position: index,
+            position: index
           }
         end
       end
@@ -129,7 +129,7 @@ module Scanners
         if cleaned.match?(/[.\-]/) && looks_like_morse?(cleaned)
           sequences << {
             sequence: cleaned,
-            position: index + sequences.length,
+            position: index + sequences.length
           }
         end
       end

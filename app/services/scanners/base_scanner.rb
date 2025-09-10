@@ -17,7 +17,7 @@ module Scanners
       def to_h
         {
           scanner_name: scanner_name,
-          matches: matches.map(&:to_h),
+          matches: matches.map(&:to_h)
         }
       end
     end
@@ -37,7 +37,7 @@ module Scanners
           name: name,
           action: action,
           description: description,
-          metadata: metadata,
+          metadata: metadata
         }
       end
     end

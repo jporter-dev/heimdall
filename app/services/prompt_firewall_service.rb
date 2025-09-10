@@ -25,7 +25,7 @@ class PromptFirewallService
         action: action,
         matched_patterns: matched_patterns.map(&:to_h),
         message: message,
-        scanner_results: scanner_results.map(&:to_h),
+        scanner_results: scanner_results.map(&:to_h)
       }
     end
   end
@@ -47,7 +47,7 @@ class PromptFirewallService
         pattern: pattern,
         action: action,
         description: description,
-        metadata: metadata,
+        metadata: metadata
       }
     end
   end
@@ -140,7 +140,7 @@ class PromptFirewallService
     pattern_config = {
       "enabled" => @config.fetch("enabled", true),
       "patterns" => @config.fetch("patterns", []),
-      "default_action" => @config.fetch("default_action", "block"),
+      "default_action" => @config.fetch("default_action", "block")
     }
     scanners << Scanners::PatternScanner.new(pattern_config)
 
@@ -186,8 +186,8 @@ class PromptFirewallService
         "enabled" => true,
         "level" => "info",
         "log_blocked" => true,
-        "log_allowed" => false,
-      },
+        "log_allowed" => false
+      }
     }
   end
 
@@ -251,7 +251,7 @@ class PromptFirewallService
       action: result.action,
       allowed: result.allowed,
       matched_patterns: result.matched_patterns.map(&:name),
-      timestamp: Time.now.iso8601,
+      timestamp: Time.now.iso8601
     }
 
     case log_level
@@ -261,11 +261,11 @@ class PromptFirewallService
 
     message = if result.blocked?
         "BLOCKED: #{result.message}"
-      elsif result.action == "warn"
+    elsif result.action == "warn"
         "WARNING: #{result.message}"
-      else
+    else
         "ALLOWED: Prompt passed firewall checks"
-      end
+    end
 
     case log_level
     when "debug"
