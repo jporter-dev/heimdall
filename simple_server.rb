@@ -58,8 +58,8 @@ class FirewallServer < WEBrick::HTTPServlet::AbstractServlet
           "GET /health - Health check",
           "GET /config - Configuration info",
           "POST /validate - Validate single prompt",
-          "POST /batch - Validate multiple prompts",
-        ],
+          "POST /batch - Validate multiple prompts"
+        ]
       })
     end
   end
@@ -194,7 +194,7 @@ curl -X POST http://localhost:3000/batch \\
       firewall_enabled: @firewall.firewall_enabled?,
       patterns_loaded: @firewall.get_patterns.length,
       timestamp: Time.now.iso8601,
-      version: "1.0.0",
+      version: "1.0.0"
     }
 
     json_response(response, health_data, 200)
@@ -208,10 +208,10 @@ curl -X POST http://localhost:3000/batch \\
         {
           name: pattern["name"],
           action: pattern["action"],
-          description: pattern["description"],
+          description: pattern["description"]
         }
       end,
-      timestamp: Time.now.iso8601,
+      timestamp: Time.now.iso8601
     }
 
     json_response(response, config_data, 200)
@@ -234,7 +234,7 @@ curl -X POST http://localhost:3000/batch \\
         action: result.action,
         message: result.message,
         matched_patterns: result.matched_patterns.map(&:to_h),
-        timestamp: Time.now.iso8601,
+        timestamp: Time.now.iso8601
       }
 
       status = result.blocked? ? 403 : 200
@@ -272,7 +272,7 @@ curl -X POST http://localhost:3000/batch \\
             index: index,
             error: "Prompt cannot be empty",
             allowed: false,
-            action: "error",
+            action: "error"
           }
         else
           result = @firewall.filter_prompt(prompt_text)
@@ -281,7 +281,7 @@ curl -X POST http://localhost:3000/batch \\
             allowed: result.allowed,
             action: result.action,
             message: result.message,
-            matched_patterns: result.matched_patterns.map(&:to_h),
+            matched_patterns: result.matched_patterns.map(&:to_h)
           }
         end
       end
@@ -292,9 +292,9 @@ curl -X POST http://localhost:3000/batch \\
           total: results.length,
           allowed: results.count { |r| r[:allowed] },
           blocked: results.count { |r| !r[:allowed] && r[:action] != "error" },
-          errors: results.count { |r| r[:action] == "error" },
+          errors: results.count { |r| r[:action] == "error" }
         },
-        timestamp: Time.now.iso8601,
+        timestamp: Time.now.iso8601
       }
 
       json_response(response, response_data, 200)
@@ -312,7 +312,7 @@ curl -X POST http://localhost:3000/batch \\
       message: "Configuration reloaded successfully",
       enabled: @firewall.firewall_enabled?,
       patterns_count: @firewall.get_patterns.length,
-      timestamp: Time.now.iso8601,
+      timestamp: Time.now.iso8601
     }
 
     json_response(response, response_data, 200)

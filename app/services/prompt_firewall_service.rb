@@ -20,7 +20,7 @@ class PromptFirewallService
         allowed: allowed,
         action: action,
         matched_patterns: matched_patterns.map(&:to_h),
-        message: message,
+        message: message
       }
     end
   end
@@ -40,7 +40,7 @@ class PromptFirewallService
         name: name,
         pattern: pattern,
         action: action,
-        description: description,
+        description: description
       }
     end
   end
@@ -145,8 +145,8 @@ class PromptFirewallService
         "enabled" => true,
         "level" => "info",
         "log_blocked" => true,
-        "log_allowed" => false,
-      },
+        "log_allowed" => false
+      }
     }
   end
 
@@ -210,7 +210,7 @@ class PromptFirewallService
       action: result.action,
       allowed: result.allowed,
       matched_patterns: result.matched_patterns.map(&:name),
-      timestamp: Time.now.iso8601,
+      timestamp: Time.now.iso8601
     }
 
     case log_level
@@ -220,11 +220,11 @@ class PromptFirewallService
 
     message = if result.blocked?
         "BLOCKED: #{result.message}"
-      elsif result.action == "warn"
+    elsif result.action == "warn"
         "WARNING: #{result.message}"
-      else
+    else
         "ALLOWED: Prompt passed firewall checks"
-      end
+    end
 
     case log_level
     when "debug"

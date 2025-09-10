@@ -22,7 +22,7 @@ module Api
           action: result.action,
           message: result.message,
           matched_patterns: result.matched_patterns.map(&:to_h),
-          timestamp: Time.current.iso8601,
+          timestamp: Time.current.iso8601
         }
 
         status = result.blocked? ? :forbidden : :ok
@@ -60,7 +60,7 @@ module Api
               index: index,
               error: "Prompt cannot be empty",
               allowed: false,
-              action: "error",
+              action: "error"
             }
           else
             result = @firewall_service.filter_prompt(prompt_text)
@@ -69,7 +69,7 @@ module Api
               allowed: result.allowed,
               action: result.action,
               message: result.message,
-              matched_patterns: result.matched_patterns.map(&:to_h),
+              matched_patterns: result.matched_patterns.map(&:to_h)
             }
           end
         end
@@ -80,9 +80,9 @@ module Api
             total: results.length,
             allowed: results.count { |r| r[:allowed] },
             blocked: results.count { |r| !r[:allowed] && r[:action] != "error" },
-            errors: results.count { |r| r[:action] == "error" },
+            errors: results.count { |r| r[:action] == "error" }
           },
-          timestamp: Time.current.iso8601,
+          timestamp: Time.current.iso8601
         }
 
         render json: response_data, status: :ok
@@ -103,11 +103,11 @@ module Api
             {
               name: pattern["name"],
               action: pattern["action"],
-              description: pattern["description"],
-            # Note: We don't expose the actual regex patterns for security
+              description: pattern["description"]
+              # Note: We don't expose the actual regex patterns for security
             }
           end,
-          timestamp: Time.current.iso8601,
+          timestamp: Time.current.iso8601
         }
 
         render json: config_data, status: :ok
@@ -125,7 +125,7 @@ module Api
           message: "Configuration reloaded successfully",
           enabled: @firewall_service.firewall_enabled?,
           patterns_count: @firewall_service.get_patterns.length,
-          timestamp: Time.current.iso8601,
+          timestamp: Time.current.iso8601
         }, status: :ok
       rescue StandardError => e
         Rails.logger.error "Error reloading firewall config: #{e.message}"
@@ -140,7 +140,7 @@ module Api
           firewall_enabled: @firewall_service.firewall_enabled?,
           patterns_loaded: @firewall_service.get_patterns.length,
           timestamp: Time.current.iso8601,
-          version: "1.0.0",
+          version: "1.0.0"
         }
 
         render json: health_data, status: :ok
@@ -149,7 +149,7 @@ module Api
         render json: {
           status: "unhealthy",
           error: "Service unavailable",
-          timestamp: Time.current.iso8601,
+          timestamp: Time.current.iso8601
         }, status: :service_unavailable
       end
 
