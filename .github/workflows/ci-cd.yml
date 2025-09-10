@@ -165,11 +165,23 @@ jobs:
       - name: 🚀 Run semantic-release
         id: semantic-release
         run: |
-          semantic-release
-          echo "new-release-published=$([ -f .version ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-          if [ -f .version ]; then
-            echo "new-release-version=$(cat .version)" >> $GITHUB_OUTPUT
+          # Run semantic-release and capture output
+          npx semantic-release > semantic-release.log 2>&1 || true
+
+          # Check if a release was published by looking for the success message
+          if grep -q "Published release" semantic-release.log || grep -q "Release note" semantic-release.log; then
+            echo "new-release-published=true" >> $GITHUB_OUTPUT
+            # Extract version from git tags (latest tag should be the new release)
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            if [ -n "$VERSION" ]; then
+              echo "new-release-version=${VERSION#v}" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "new-release-published=false" >> $GITHUB_OUTPUT
           fi
+
+          # Display the log for debugging
+          cat semantic-release.log
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
