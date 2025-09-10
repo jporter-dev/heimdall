@@ -11,8 +11,8 @@ A Ruby on Rails API application that serves as a security firewall for Large Lan
 - **Batch Processing**: Validate multiple prompts in a single API call
 - **Comprehensive Logging**: Detailed logging with configurable levels
 - **Health Monitoring**: Built-in health check endpoints
-- **CORS Support**: Configurable cross-origin resource sharing
-- **Hot Reload**: Runtime configuration reloading without restart
+- **Code Quality**: Includes tests and static analysis tools for maintainability
+- **CI/CD Ready**: Includes GitHub Actions for automated testing, code quality, releases and deployment
 
 ## Quick Start
 

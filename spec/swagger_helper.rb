@@ -18,11 +18,11 @@ RSpec.configure do |config|
     "v1/swagger.yaml" => {
       openapi: "3.0.1",
       info: {
-        title: "LLM Firewall API",
+        title: "Heimdall API",
         description: "A comprehensive API for filtering and validating prompts sent to Large Language Models (LLMs). This firewall service helps protect against prompt injection attacks, jailbreak attempts, sensitive information extraction, harmful content generation requests, and command/SQL injection attempts.",
         version: "1.0.0",
         contact: {
-          name: "LLM Firewall API Support",
+          name: "Heimdall API Support",
           url: "https://github.com/your-username/llm-fw"
         },
         license: {

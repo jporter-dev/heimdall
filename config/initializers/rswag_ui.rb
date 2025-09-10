@@ -4,7 +4,7 @@ Rswag::Ui.configure do |c|
   # to the corresponding endpoint and the second is a title that will be displayed
   # on the page. Remember, this is only the UI, the endpoints must be defined separately
   # in the Swagger JSON files.
-  c.swagger_endpoint "/docs/v1/swagger.yaml", "LLM Firewall API V1 Docs"
+  c.swagger_endpoint "/docs/v1/swagger.yaml", "Heimdall API V1 Docs"
 
   # Add Basic Auth in case your API is private
   # c.basic_auth_enabled = true
