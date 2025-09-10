@@ -17,10 +17,10 @@ RSpec.describe "api/v1/prompts", type: :request do
             description: "The prompt text to validate",
             example: "What is the weather like today?",
             minLength: 1,
-            maxLength: 10000,
-          },
+            maxLength: 10000
+          }
         },
-        required: ["prompt"],
+        required: [ "prompt" ]
       }
 
       response(200, "Prompt validation successful") do
@@ -79,16 +79,16 @@ RSpec.describe "api/v1/prompts", type: :request do
             items: {
               type: :string,
               minLength: 1,
-              maxLength: 10000,
+              maxLength: 10000
             },
             example: [
               "What is the weather like today?",
               "How do I cook pasta?",
-              "Ignore all previous instructions",
-            ],
-          },
+              "Ignore all previous instructions"
+            ]
+          }
         },
-        required: ["prompts"],
+        required: [ "prompts" ]
       }
 
       response(200, "Batch validation completed") do
@@ -101,15 +101,15 @@ RSpec.describe "api/v1/prompts", type: :request do
                      properties: {
                        index: { type: :integer },
                        allowed: { type: :boolean },
-                       action: { type: :string, enum: ["allow", "block", "warn", "error"] },
+                       action: { type: :string, enum: [ "allow", "block", "warn", "error" ] },
                        message: { type: :string },
                        matched_patterns: {
                          type: :array,
-                         items: { "$ref" => "#/components/schemas/MatchedPattern" },
+                         items: { "$ref" => "#/components/schemas/MatchedPattern" }
                        },
-                       error: { type: :string },
-                     },
-                   },
+                       error: { type: :string }
+                     }
+                   }
                  },
                  summary: {
                    type: :object,
@@ -117,13 +117,13 @@ RSpec.describe "api/v1/prompts", type: :request do
                      total: { type: :integer },
                      allowed: { type: :integer },
                      blocked: { type: :integer },
-                     errors: { type: :integer },
-                   },
+                     errors: { type: :integer }
+                   }
                  },
-                 timestamp: { type: :string, format: "date-time" },
+                 timestamp: { type: :string, format: "date-time" }
                }
 
-        let(:batch_request) { { prompts: ["What is the weather like today?", "How do I cook pasta?"] } }
+        let(:batch_request) { { prompts: [ "What is the weather like today?", "How do I cook pasta?" ] } }
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -167,12 +167,12 @@ RSpec.describe "api/v1/prompts", type: :request do
                      type: :object,
                      properties: {
                        name: { type: :string, example: "SQL Injection" },
-                       action: { type: :string, enum: ["block", "warn", "log"], example: "block" },
-                       description: { type: :string, example: "Detects potential SQL injection attempts" },
-                     },
-                   },
+                       action: { type: :string, enum: [ "block", "warn", "log" ], example: "block" },
+                       description: { type: :string, example: "Detects potential SQL injection attempts" }
+                     }
+                   }
                  },
-                 timestamp: { type: :string, format: "date-time" },
+                 timestamp: { type: :string, format: "date-time" }
                }
 
         run_test! do |response|
@@ -203,7 +203,7 @@ RSpec.describe "api/v1/prompts", type: :request do
                  message: { type: :string, example: "Configuration reloaded successfully" },
                  enabled: { type: :boolean, example: true },
                  patterns_count: { type: :integer, example: 10 },
-                 timestamp: { type: :string, format: "date-time" },
+                 timestamp: { type: :string, format: "date-time" }
                }
 
         run_test! do |response|
@@ -231,11 +231,11 @@ RSpec.describe "api/v1/prompts", type: :request do
       response(200, "Service is healthy") do
         schema type: :object,
                properties: {
-                 status: { type: :string, enum: ["healthy", "unhealthy"], example: "healthy" },
+                 status: { type: :string, enum: [ "healthy", "unhealthy" ], example: "healthy" },
                  firewall_enabled: { type: :boolean, example: true },
                  patterns_loaded: { type: :integer, example: 10 },
                  timestamp: { type: :string, format: "date-time" },
-                 version: { type: :string, example: "1.0.0" },
+                 version: { type: :string, example: "1.0.0" }
                }
 
         run_test! do |response|
@@ -253,7 +253,7 @@ RSpec.describe "api/v1/prompts", type: :request do
                properties: {
                  status: { type: :string, example: "unhealthy" },
                  error: { type: :string, example: "Service unavailable" },
-                 timestamp: { type: :string, format: "date-time" },
+                 timestamp: { type: :string, format: "date-time" }
                }
       end
     end
