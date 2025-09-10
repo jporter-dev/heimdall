@@ -154,7 +154,7 @@ jobs:
 
       - name: 📦 Install semantic-release
         run: |
-          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/commit-analyzer
 
       - name: 🚀 Run semantic-release
         id: semantic-release
