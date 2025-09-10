@@ -29,7 +29,7 @@ default: &default # Enable/disable the firewall
 
     # Prompt injection attempts
     - name: "Ignore Instructions"
-      pattern: '(?i)(ignore\s+(previous|all|above)\s+(instructions|prompts|rules)|forget\s+(everything|all|previous))'
+      pattern: '(?i)(ignore\s+(all\s+)?(previous|above)\s+(instructions|prompts|rules)|forget\s+(everything|all|previous))'
       action: block
       description: "Detects attempts to ignore system instructions"
 

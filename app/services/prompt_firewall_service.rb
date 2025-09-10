@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
+require_relative "scanners/pattern_scanner"
+require_relative "scanners/morse_code_scanner"
+
 class PromptFirewallService
   class FilterResult
-    attr_reader :allowed, :action, :matched_patterns, :message
+    attr_reader :allowed, :action, :matched_patterns, :message, :scanner_results
 
-    def initialize(allowed:, action:, matched_patterns: [], message: nil)
+    def initialize(allowed:, action:, matched_patterns: [], message: nil, scanner_results: [])
       @allowed = allowed
       @action = action
       @matched_patterns = matched_patterns
       @message = message
+      @scanner_results = scanner_results
     end
 
     def blocked?
@@ -20,19 +24,21 @@ class PromptFirewallService
         allowed: allowed,
         action: action,
         matched_patterns: matched_patterns.map(&:to_h),
-        message: message
+        message: message,
+        scanner_results: scanner_results.map(&:to_h),
       }
     end
   end
 
   class MatchedPattern
-    attr_reader :name, :pattern, :action, :description
+    attr_reader :name, :pattern, :action, :description, :metadata
 
-    def initialize(name:, pattern:, action:, description:)
+    def initialize(name:, pattern: nil, action:, description:, metadata: {})
       @name = name
       @pattern = pattern
       @action = action
       @description = description
+      @metadata = metadata
     end
 
     def to_h
@@ -40,7 +46,8 @@ class PromptFirewallService
         name: name,
         pattern: pattern,
         action: action,
-        description: description
+        description: description,
+        metadata: metadata,
       }
     end
   end
@@ -48,33 +55,46 @@ class PromptFirewallService
   def initialize
     @config = load_config
     @logger = Rails.logger
+    @scanners = initialize_scanners
   end
 
   def filter_prompt(prompt)
     return FilterResult.new(allowed: true, action: "allow") unless firewall_enabled?
 
     matched_patterns = []
+    scanner_results = []
     highest_severity_action = "allow"
 
-    @config["patterns"]&.each do |pattern_config|
-      if matches_pattern?(prompt, pattern_config["pattern"])
+    # Run all enabled scanners
+    @scanners.each do |scanner|
+      next unless scanner.enabled?
+
+      scan_result = scanner.scan(prompt)
+      scanner_results << scan_result
+
+      # Process matches from this scanner
+      scan_result.matches.each do |match|
         matched_pattern = MatchedPattern.new(
-          name: pattern_config["name"],
-          pattern: pattern_config["pattern"],
-          action: pattern_config["action"] || @config["default_action"],
-          description: pattern_config["description"],
+          name: match.name,
+          pattern: match.metadata[:pattern],
+          action: match.action,
+          description: match.description,
+          metadata: match.metadata,
         )
         matched_patterns << matched_pattern
 
         # Determine the highest severity action
-        action = matched_pattern.action
-        highest_severity_action = determine_highest_severity(highest_severity_action, action)
+        highest_severity_action = determine_highest_severity(highest_severity_action, match.action)
       end
     end
 
     # If no patterns matched, allow the prompt
     if matched_patterns.empty?
-      result = FilterResult.new(allowed: true, action: "allow")
+      result = FilterResult.new(
+        allowed: true,
+        action: "allow",
+        scanner_results: scanner_results,
+      )
       log_result(prompt, result) if should_log_allowed?
       return result
     end
@@ -86,6 +106,7 @@ class PromptFirewallService
       action: highest_severity_action,
       matched_patterns: matched_patterns,
       message: generate_message(highest_severity_action, matched_patterns),
+      scanner_results: scanner_results,
     )
 
     log_result(prompt, result) if should_log_result?(result)
@@ -94,6 +115,7 @@ class PromptFirewallService
 
   def reload_config!
     @config = load_config
+    @scanners = initialize_scanners
     @logger.info "Prompt firewall configuration reloaded"
   end
 
@@ -110,6 +132,25 @@ class PromptFirewallService
   end
 
   private
+
+  def initialize_scanners
+    scanners = []
+
+    # Initialize pattern scanner with existing patterns configuration
+    pattern_config = {
+      "enabled" => @config.fetch("enabled", true),
+      "patterns" => @config.fetch("patterns", []),
+      "default_action" => @config.fetch("default_action", "block"),
+    }
+    scanners << Scanners::PatternScanner.new(pattern_config)
+
+    # Initialize morse code scanner
+    morse_config = @config.fetch("morse_code_scanner", {})
+    morse_config["enabled"] = morse_config.fetch("enabled", true)
+    scanners << Scanners::MorseCodeScanner.new(morse_config)
+
+    scanners
+  end
 
   def load_config
     config_file = Rails.root.join("config", "prompt_filters.yml")
@@ -145,8 +186,8 @@ class PromptFirewallService
         "enabled" => true,
         "level" => "info",
         "log_blocked" => true,
-        "log_allowed" => false
-      }
+        "log_allowed" => false,
+      },
     }
   end
 
@@ -210,7 +251,7 @@ class PromptFirewallService
       action: result.action,
       allowed: result.allowed,
       matched_patterns: result.matched_patterns.map(&:name),
-      timestamp: Time.now.iso8601
+      timestamp: Time.now.iso8601,
     }
 
     case log_level
@@ -220,11 +261,11 @@ class PromptFirewallService
 
     message = if result.blocked?
         "BLOCKED: #{result.message}"
-    elsif result.action == "warn"
+      elsif result.action == "warn"
         "WARNING: #{result.message}"
-    else
+      else
         "ALLOWED: Prompt passed firewall checks"
-    end
+      end
 
     case log_level
     when "debug"
