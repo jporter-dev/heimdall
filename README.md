@@ -1,5 +1,7 @@
 # LLM Prompt Firewall
 
+[![HeimdallLogo](heimdall.png)](https://github.com/jporter-dev/heimdall)
+
 A Ruby on Rails API application that serves as a security firewall for Large Language Model (LLM) prompts. It uses configurable regex patterns to detect and block potentially harmful, malicious, or unwanted prompts before they reach your LLM systems.
 
 ## Features
