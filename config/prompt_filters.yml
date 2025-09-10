@@ -1,0 +1,102 @@
+# LLM Prompt Firewall Configuration
+# This file contains regex patterns to filter potentially harmful or unwanted prompts
+
+default: &default # Enable/disable the firewall
+  enabled: true
+
+  # Default action when a pattern matches (block, warn, log)
+  default_action: block
+
+  # Logging configuration
+  logging:
+    enabled: true
+    level: info
+    log_blocked: true
+    log_allowed: true
+
+  # Regex patterns for filtering prompts
+  patterns:
+    # Injection attempts
+    - name: "SQL Injection"
+      pattern: '(?i)(union\s+select|drop\s+table|delete\s+from|insert\s+into|update\s+set)'
+      action: block
+      description: "Detects potential SQL injection attempts"
+
+    - name: "Command Injection"
+      pattern: '(?i)(system\(|exec\(|`[^`]*`|\$\([^)]*\)|;\s*(rm|del|format|shutdown))'
+      action: block
+      description: "Detects potential command injection attempts"
+
+    # Prompt injection attempts
+    - name: "Ignore Instructions"
+      pattern: '(?i)(ignore\s+(previous|all|above)\s+(instructions|prompts|rules)|forget\s+(everything|all|previous))'
+      action: block
+      description: "Detects attempts to ignore system instructions"
+
+    - name: "Role Playing Override"
+      pattern: '(?i)(you\s+are\s+now|act\s+as\s+if|pretend\s+to\s+be|roleplay\s+as)(?!.*assistant)'
+      action: warn
+      description: "Detects attempts to override AI role"
+
+    # Sensitive information extraction
+    - name: "System Prompt Extraction"
+      pattern: '(?i)(show\s+me\s+your|what\s+is\s+your|reveal\s+your)\s+(system\s+prompt|instructions|rules)'
+      action: block
+      description: "Detects attempts to extract system prompts"
+
+    - name: "Personal Information Request"
+      pattern: '(?i)(social\s+security|credit\s+card|password|api\s+key|private\s+key)'
+      action: block
+      description: "Detects requests for sensitive personal information"
+
+    # Harmful content generation
+    - name: "Violence Instructions"
+      pattern: '(?i)(how\s+to\s+(kill|murder|harm|hurt)|instructions\s+for\s+(violence|weapons))'
+      action: block
+      description: "Detects requests for violent content"
+
+    - name: "Illegal Activities"
+      pattern: '(?i)(how\s+to\s+(hack|steal|fraud|scam)|illegal\s+(drugs|activities))'
+      action: block
+      description: "Detects requests for illegal activities"
+
+    # Bypass attempts
+    - name: "Encoding Bypass"
+      pattern: '(?i)(base64|hex|rot13|url\s*encode|html\s*encode)'
+      action: warn
+      description: "Detects potential encoding-based bypass attempts"
+
+    - name: "Jailbreak Attempts"
+      pattern: '(?i)(jailbreak|dan\s+mode|developer\s+mode|god\s+mode|admin\s+mode)'
+      action: block
+      description: "Detects common jailbreak attempt patterns"
+
+development:
+  <<: *default
+  # More permissive in development
+  default_action: warn
+  logging:
+    enabled: true
+    level: debug
+    log_blocked: true
+    log_allowed: true
+
+test:
+  <<: *default
+  # Disable logging in tests
+  logging:
+    enabled: false
+    level: error
+    log_blocked: false
+    log_allowed: false
+
+production:
+  <<: *default
+  # Strict filtering in production
+  enabled: <%= ENV.fetch("PROMPT_FIREWALL_ENABLED", "true") == "true" %>
+  default_action: <%= ENV.fetch("PROMPT_FIREWALL_DEFAULT_ACTION", "block") %>
+  logging:
+    enabled: <%= ENV.fetch("PROMPT_FIREWALL_LOGGING_ENABLED", "true") == "true" %>
+    level: <%= ENV.fetch("PROMPT_FIREWALL_LOG_LEVEL", "info") %>
+    log_blocked: <%= ENV.fetch("PROMPT_FIREWALL_LOG_BLOCKED", "true") == "true" %>
+    log_allowed: <%= ENV.fetch("PROMPT_FIREWALL_LOG_ALLOWED", "false") == "true" %>
